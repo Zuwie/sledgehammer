@@ -7,9 +7,6 @@ import { createUserSession, getUserId } from "~/session.server";
 import { createUser, getUserByEmail } from "~/models/user.server";
 import { safeRedirect, validateEmail } from "~/utils";
 
-import { Button } from "~/components/Button";
-import { ROUTES } from "~/constants";
-
 export async function loader({ request }: LoaderArgs) {
   const userId = await getUserId(request);
   if (userId) return redirect("/");
@@ -75,11 +72,7 @@ export const meta: MetaFunction = () => {
 export default function Join() {
   return (
     <div className="flex min-h-full flex-col justify-center">
-      <div className="mx-auto w-full max-w-md px-8">
-        <Button to={ROUTES.DISCORD_AUTH} color="cyan">
-          Connect with Discord
-        </Button>
-      </div>
+      <div className="mx-auto w-full max-w-md px-8">Discord</div>
     </div>
   );
 }
