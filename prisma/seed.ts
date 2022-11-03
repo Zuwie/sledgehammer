@@ -1,42 +1,58 @@
-import { PrismaClient } from "@prisma/client";
-import bcrypt from "bcryptjs";
+import { PrismaClient, User } from "@prisma/client";
+import { faker } from "@faker-js/faker";
 
 const prisma = new PrismaClient();
 
-async function seed() {
-  const email = "rachel@remix.run";
+/**
+ * It returns a fake user object with a random email, password, userName, and avatar
+ * @returns An object with a data property that contains an object with email, password, userName, and avatar properties.
+ */
+function getFakeUser() {
+  return {
+    data: {
+      userName: `${faker.internet.userName("Fake")}#${faker.random.numeric(4)}`,
+      avatar: faker.internet.avatar(),
+    },
+  };
+}
 
+async function seed() {
   // cleanup the existing database
-  await prisma.user.delete({ where: { email } }).catch(() => {
+  const userName = "Aquila";
+  await prisma.user.delete({ where: { userName } }).catch(() => {
     // no worries if it doesn't exist yet
   });
 
-  const hashedPassword = await bcrypt.hash("racheliscool", 10);
+  const userArray: User[] = [];
 
-  const user = await prisma.user.create({
+  const user1 = await prisma.user.create({
     data: {
-      email,
-      password: {
-        create: {
-          hash: hashedPassword,
-        },
-      },
+      userName: "Aquila",
+      avatar: faker.internet.avatar(),
     },
   });
+  userArray.push(user1);
 
-  await prisma.note.create({
+  /* It's creating 15 fake users and pushing them into an array. */
+  for (let i = 0; i < 15; i++) {
+    const fakeUser = await prisma.user.create(getFakeUser());
+    await fakeUser;
+    userArray.push(await fakeUser);
+  }
+
+  await prisma.post.create({
     data: {
       title: "My first note",
       body: "Hello, world!",
-      userId: user.id,
+      authorId: user1.id,
     },
   });
 
-  await prisma.note.create({
+  await prisma.post.create({
     data: {
       title: "My second note",
       body: "Hello, world!",
-      userId: user.id,
+      authorId: user1.id,
     },
   });
 
